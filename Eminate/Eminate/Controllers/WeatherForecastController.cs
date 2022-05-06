@@ -1,3 +1,4 @@
+using Eminate.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eminate.Controllers
@@ -18,16 +19,47 @@ namespace Eminate.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("GetTitleCrew")]
+        public IEnumerable<TitleCrew> GetTitleCrew()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return Reader<TitleCrew>.ReadFile("C:\\Users\\amykh\\Desktop\\TitleCrew.tsv");
         }
+
+        [HttpGet("GetNameBasics")]
+        public IEnumerable<NameBasics> GetNameBasics()
+        {
+            return Reader<NameBasics>.ReadFile("C:\\Users\\amykh\\Desktop\\NameBasics.tsv");
+        }
+
+        [HttpGet("GetTitleAkas")]
+        public IEnumerable<TitleVariations> GetTitleAkas()
+        {
+            return Reader<TitleVariations>.ReadFile("C:\\Users\\amykh\\Desktop\\TitleAkas.tsv");
+        }
+
+        [HttpGet("GetCombinedFields")]
+        public IActionResult GetCombinedFields()
+        {
+            //var titleAkas = Reader<TitleVariations>.ReadFile("C:\\Users\\amykh\\Desktop\\TitleAkas.tsv");
+            var nameBasics = Reader<NameBasics>.ReadFile("C:\\Users\\amykh\\Desktop\\NameBasics.tsv");
+            var titleCrew = Reader<TitleCrew>.ReadFile("C:\\Users\\amykh\\Desktop\\TitleCrew.tsv");
+            var combinedData = titleCrew
+                .Take(10)
+                .GroupJoin(
+                    Reader<TitleVariations>.ReadFile("C:\\Users\\amykh\\Desktop\\TitleAkas.tsv"),
+                    tcrew => tcrew.TitleKey,
+                    taka => taka.TitleId,
+                    (tcrew, taka) =>  new { tcrew, taka })
+                //.GroupJoin(
+                //    nameBasics,
+                //    combined => combined.tcrew.Directors,
+                //    basic => basic.NameKey,
+                //    (combined,basic) => new {combined.taka, combined.tcrew, basic})
+                .Take(10)
+                .ToList();
+            return Ok(combinedData);
+
+        }
+
     }
 }
