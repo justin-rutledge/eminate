@@ -1,6 +1,8 @@
 ﻿using CsvHelper;
 using System.Globalization;
-namespace Eminate
+
+
+namespace Api
 {
     public class Reader<T>
     {

@@ -1,7 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration.Attributes;
 
-namespace Eminate.Model
+namespace Api.Model
 {
     public class TitleCrew
     {
